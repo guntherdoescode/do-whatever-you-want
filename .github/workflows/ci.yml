@@ -1,0 +1,62 @@
+name: CI Checks
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+jobs:
+  malware-scan:
+    name: Malware & Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run malware scan
+        run: bash .github/scripts/malware-check.sh
+      - name: Upload suspicious findings
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: malware-scan-report
+          path: /tmp/malware-report-*.txt
+
+  dep-check:
+    name: Dependency Hell Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run dependency conflict check
+        run: bash .github/scripts/dep-check.sh
+
+  build-test:
+    name: Build & Compile Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - rust
+          - go
+          - node
+          - python
+          - java
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup build environment
+        uses: ./.github/actions/setup-lang
+        with:
+          language: ${{ matrix.language }}
+      - name: Build/compile project
+        run: bash .github/scripts/build-check.sh ${{ matrix.language }}
+      - name: Crash test (run if compilable)
+        if: success()
+        run: bash .github/scripts/crash-test.sh ${{ matrix.language }}
+
+  lint-consistency:
+    name: Codebase Consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for filesystem consistency
+        run: bash .github/scripts/consistency-check.sh
