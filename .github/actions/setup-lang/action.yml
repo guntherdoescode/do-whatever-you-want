@@ -2,7 +2,7 @@ name: "Setup Language Environment"
 description: "Installs required tooling for a given language"
 inputs:
   language:
-    description: "The language to set up (rust, go, node, python, java)"
+    description: "The language to set up"
     required: true
 runs:
   using: "composite"
@@ -28,8 +28,66 @@ runs:
       with:
         python-version: '3.12'
     - name: Setup Java
-      if: inputs.language == 'java'
+      if: inputs.language == 'java' || inputs.language == 'kotlin' || inputs.language == 'scala'
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
+    - name: Setup C/C++
+      if: inputs.language == 'c_cpp'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq gcc g++ make cmake 2>/dev/null
+    - name: Setup C# (.NET)
+      if: inputs.language == 'csharp'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0'
+    - name: Setup Ruby
+      if: inputs.language == 'ruby'
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3'
+    - name: Setup PHP
+      if: inputs.language == 'php'
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+    - name: Setup Zig
+      if: inputs.language == 'zig'
+      uses: mlugg/setup-zig@v1
+      with:
+        version: '0.14.0'
+    - name: Setup Kotlin
+      if: inputs.language == 'kotlin'
+      shell: bash
+      run: |
+        curl -sSLO https://github.com/JetBrains/kotlin/releases/download/v2.1.0/kotlin-compiler-2.1.0.zip
+        sudo unzip -q kotlin-compiler-*.zip -d /opt
+        sudo ln -sf /opt/kotlinc/bin/kotlinc /usr/local/bin/kotlinc
+        sudo ln -sf /opt/kotlinc/bin/kotlin /usr/local/bin/kotlin
+        rm -f kotlin-compiler-*.zip
+    - name: Setup Swift
+      if: inputs.language == 'swift'
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: '6.0'
+    - name: Setup Haskell
+      if: inputs.language == 'haskell'
+      uses: haskell/actions/setup@v2
+      with:
+        ghc-version: '9.10'
+        cabal-version: '3.12'
+    - name: Setup Dart
+      if: inputs.language == 'dart'
+      uses: dart-lang/setup-dart@v1
+      with:
+        sdk: '3.6'
+    - name: Setup Scala
+      if: inputs.language == 'scala'
+      shell: bash
+      run: |
+        curl -sSfL https://github.com/lampepfl/dotty/releases/download/3.6.2/scala3-3.6.2.tar.gz | sudo tar xz -C /opt
+        sudo ln -sf /opt/scala3-3.6.2/bin/scalac /usr/local/bin/scalac
+        sudo ln -sf /opt/scala3-3.6.2/bin/scala /usr/local/bin/scala

@@ -7,6 +7,115 @@ on:
     branches: [ "main" ]
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      languages: ${{ steps.langs.outputs.languages }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            rust:
+              - '**/*.rs'
+              - '**/Cargo.toml'
+              - '**/Cargo.lock'
+            go:
+              - '**/*.go'
+              - '**/go.mod'
+              - '**/go.sum'
+            node:
+              - '**/*.js'
+              - '**/*.ts'
+              - '**/*.jsx'
+              - '**/*.tsx'
+              - '**/package.json'
+              - '**/yarn.lock'
+              - '**/pnpm-lock.yaml'
+            python:
+              - '**/*.py'
+              - '**/requirements.txt'
+              - '**/setup.py'
+              - '**/setup.cfg'
+              - '**/pyproject.toml'
+            java:
+              - '**/*.java'
+              - '**/pom.xml'
+              - '**/build.gradle'
+              - '**/build.gradle.kts'
+            c_cpp:
+              - '**/*.c'
+              - '**/*.cpp'
+              - '**/*.cc'
+              - '**/*.cxx'
+              - '**/*.h'
+              - '**/*.hpp'
+              - '**/Makefile'
+              - '**/CMakeLists.txt'
+            csharp:
+              - '**/*.cs'
+              - '**/*.csproj'
+              - '**/*.sln'
+            ruby:
+              - '**/*.rb'
+              - '**/Gemfile'
+              - '**/Gemfile.lock'
+            php:
+              - '**/*.php'
+              - '**/composer.json'
+              - '**/composer.lock'
+            zig:
+              - '**/*.zig'
+              - '**/build.zig'
+              - '**/build.zig.zon'
+            kotlin:
+              - '**/*.kt'
+              - '**/*.kts'
+              - '**/build.gradle.kts'
+            swift:
+              - '**/*.swift'
+              - '**/Package.swift'
+            haskell:
+              - '**/*.hs'
+              - '**/*.lhs'
+              - '**/*.cabal'
+              - '**/stack.yaml'
+              - '**/package.yaml'
+            dart:
+              - '**/*.dart'
+              - '**/pubspec.yaml'
+            scala:
+              - '**/*.scala'
+              - '**/build.sbt'
+      - name: Build language matrix
+        id: langs
+        run: |
+          LANGS=()
+          [ "${{ steps.filter.outputs.rust }}" = "true" ] && LANGS+=("rust")
+          [ "${{ steps.filter.outputs.go }}" = "true" ] && LANGS+=("go")
+          [ "${{ steps.filter.outputs.node }}" = "true" ] && LANGS+=("node")
+          [ "${{ steps.filter.outputs.python }}" = "true" ] && LANGS+=("python")
+          [ "${{ steps.filter.outputs.java }}" = "true" ] && LANGS+=("java")
+          [ "${{ steps.filter.outputs.c_cpp }}" = "true" ] && LANGS+=("c_cpp")
+          [ "${{ steps.filter.outputs.csharp }}" = "true" ] && LANGS+=("csharp")
+          [ "${{ steps.filter.outputs.ruby }}" = "true" ] && LANGS+=("ruby")
+          [ "${{ steps.filter.outputs.php }}" = "true" ] && LANGS+=("php")
+          [ "${{ steps.filter.outputs.zig }}" = "true" ] && LANGS+=("zig")
+          [ "${{ steps.filter.outputs.kotlin }}" = "true" ] && LANGS+=("kotlin")
+          [ "${{ steps.filter.outputs.swift }}" = "true" ] && LANGS+=("swift")
+          [ "${{ steps.filter.outputs.haskell }}" = "true" ] && LANGS+=("haskell")
+          [ "${{ steps.filter.outputs.dart }}" = "true" ] && LANGS+=("dart")
+          [ "${{ steps.filter.outputs.scala }}" = "true" ] && LANGS+=("scala")
+          LEN=${#LANGS[@]}
+          if [ "$LEN" -eq 0 ]; then
+            echo "languages=[]" >> $GITHUB_OUTPUT
+          else
+            JSON=$(printf '%s\n' "${LANGS[@]}" | jq -R . | jq -sc .)
+            echo "languages=$JSON" >> $GITHUB_OUTPUT
+          fi
+          echo "Detected languages: ${LANGS[*]:-none}"
+
   malware-scan:
     name: Malware & Security Scan
     runs-on: ubuntu-latest
@@ -31,16 +140,13 @@ jobs:
 
   build-test:
     name: Build & Compile Check
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.languages != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        language:
-          - rust
-          - go
-          - node
-          - python
-          - java
+        language: ${{ fromJSON(needs.detect-changes.outputs.languages) }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup build environment
