@@ -91,3 +91,79 @@ runs:
         curl -sSfL https://github.com/lampepfl/dotty/releases/download/3.6.2/scala3-3.6.2.tar.gz | sudo tar xz -C /opt
         sudo ln -sf /opt/scala3-3.6.2/bin/scalac /usr/local/bin/scalac
         sudo ln -sf /opt/scala3-3.6.2/bin/scala /usr/local/bin/scala
+    - name: Setup Assembly
+      if: inputs.language == 'assembly'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq nasm 2>/dev/null
+    - name: Setup Brainfuck
+      if: inputs.language == 'brainfuck'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq bf 2>/dev/null
+    - name: Setup Clojure
+      if: inputs.language == 'clojure'
+      shell: bash
+      run: |
+        curl -fsSL https://clojure.org/install/linux-install-1.12.2.1470.sh | bash
+    - name: Setup Crystal
+      if: inputs.language == 'crystal'
+      shell: bash
+      run: |
+        curl -fsSL https://crystal-lang.org/install.sh | bash
+    - name: Setup Elixir
+      if: inputs.language == 'elixir'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq erlang elixir 2>/dev/null
+    - name: Setup Erlang
+      if: inputs.language == 'erlang'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq erlang-base 2>/dev/null
+    - name: Setup Julia
+      if: inputs.language == 'julia'
+      shell: bash
+      run: |
+        curl -fsSL https://julialang-s3.julialang.org/bin/linux/x64/1.11/julia-1.11.4-linux-x86_64.tar.gz | sudo tar xz -C /opt
+        sudo ln -sf /opt/julia-1.11.4/bin/julia /usr/local/bin/julia
+    - name: Setup Lua
+      if: inputs.language == 'lua'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq lua5.4 2>/dev/null
+    - name: Setup Nim
+      if: inputs.language == 'nim'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq nim 2>/dev/null
+    - name: Setup OCaml
+      if: inputs.language == 'ocaml'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq ocaml ocaml-findlib 2>/dev/null
+    - name: Setup Perl
+      if: inputs.language == 'perl'
+      shell: bash
+      run: |
+        perl -v >/dev/null 2>&1 || sudo apt-get install -y -qq perl 2>/dev/null
+    - name: Setup R
+      if: inputs.language == 'r'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq r-base 2>/dev/null
+    - name: Setup V
+      if: inputs.language == 'v'
+      shell: bash
+      run: |
+        git clone --depth=1 https://github.com/vlang/v /tmp/vlang
+        cd /tmp/vlang && make
+        sudo ln -sf /tmp/vlang/v /usr/local/bin/v

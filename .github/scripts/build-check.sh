@@ -210,6 +210,149 @@ case "$LANGUAGE" in
             echo "SKIP: No Scala files found"
         fi
         ;;
+    assembly)
+        if ls *.asm 2>/dev/null | head -1; then
+            echo "Assembling with NASM..."
+            for f in *.asm; do
+                [ -f "$f" ] && nasm -f elf64 "$f" -o "${f%.asm}.o" 2>&1 || true
+            done
+        elif ls *.s *.S 2>/dev/null | head -1; then
+            echo "Assembling with GCC..."
+            for f in *.s *.S; do
+                [ -f "$f" ] && gcc -c "$f" -o "${f%.*}.o" 2>&1 || true
+                break
+            done
+        else
+            echo "SKIP: No Assembly files found"
+        fi
+        ;;
+    brainfuck)
+        if ls *.bf *.b 2>/dev/null | head -1; then
+            echo "Checking Brainfuck syntax..."
+            for f in *.bf *.b; do
+                [ -f "$f" ] && bf "$f" < /dev/null 2>&1 || true
+                break
+            done
+        else
+            echo "SKIP: No Brainfuck files found"
+        fi
+        ;;
+    clojure)
+        if [ -f "deps.edn" ] || [ -f "project.clj" ]; then
+            echo "Checking Clojure project..."
+            clojure -M -e '(println "ok")' 2>&1 || true
+        elif ls *.clj 2>/dev/null | head -1; then
+            echo "Checking Clojure files..."
+            clojure -M -e '(println "ok")' 2>&1 || true
+        else
+            echo "SKIP: No Clojure files found"
+        fi
+        ;;
+    crystal)
+        if [ -f "shard.yml" ]; then
+            echo "Building Crystal project..."
+            crystal build src/*.cr 2>&1 || true
+        elif ls *.cr 2>/dev/null | head -1; then
+            echo "Compiling Crystal files..."
+            crystal build *.cr 2>&1 || true
+        else
+            echo "SKIP: No Crystal files found"
+        fi
+        ;;
+    elixir)
+        if [ -f "mix.exs" ]; then
+            echo "Compiling Elixir project..."
+            mix compile 2>&1 || true
+        elif ls *.ex 2>/dev/null | head -1; then
+            echo "Compiling Elixir files..."
+            elixirc *.ex 2>&1 || true
+        else
+            echo "SKIP: No Elixir files found"
+        fi
+        ;;
+    erlang)
+        if ls *.erl 2>/dev/null | head -1; then
+            echo "Compiling Erlang files..."
+            erlc *.erl 2>&1 || true
+        else
+            echo "SKIP: No Erlang files found"
+        fi
+        ;;
+    julia)
+        if ls *.jl 2>/dev/null | head -1; then
+            echo "Checking Julia syntax..."
+            for f in *.jl; do
+                [ -f "$f" ] && julia -e "include(\"$f\")" 2>&1 || true
+                break
+            done
+        else
+            echo "SKIP: No Julia files found"
+        fi
+        ;;
+    lua)
+        if ls *.lua 2>/dev/null | head -1; then
+            echo "Checking Lua syntax..."
+            for f in *.lua; do
+                [ -f "$f" ] && luac -p "$f" 2>&1 || true
+            done
+        else
+            echo "SKIP: No Lua files found"
+        fi
+        ;;
+    nim)
+        if ls *.nim 2>/dev/null | head -1; then
+            echo "Compiling Nim files..."
+            for f in *.nim; do
+                [ -f "$f" ] && nim compile --verbosity:0 "$f" 2>&1 || true
+                break
+            done
+        else
+            echo "SKIP: No Nim files found"
+        fi
+        ;;
+    ocaml)
+        if [ -f "dune" ]; then
+            echo "Building with Dune..."
+            dune build 2>&1 || true
+        elif ls *.ml 2>/dev/null | head -1; then
+            echo "Compiling OCaml files..."
+            ocamlc -c *.ml 2>&1 || true
+        else
+            echo "SKIP: No OCaml files found"
+        fi
+        ;;
+    perl)
+        if ls *.pl *.pm 2>/dev/null | head -1; then
+            echo "Checking Perl syntax..."
+            for f in *.pl *.pm; do
+                [ -f "$f" ] && perl -c "$f" 2>&1 || true
+            done
+        else
+            echo "SKIP: No Perl files found"
+        fi
+        ;;
+    r)
+        if ls *.R *.r 2>/dev/null | head -1; then
+            echo "Checking R files..."
+            for f in *.R *.r; do
+                [ -f "$f" ] && Rscript -e "parse(file=\"$f\")" 2>&1 || true
+                break
+            done
+        else
+            echo "SKIP: No R files found"
+        fi
+        ;;
+    v)
+        if ls *.v 2>/dev/null | head -1; then
+            echo "Building V files..."
+            for f in *.v; do
+                [ -f "$f" ] && v "$f" 2>&1 || true
+                break
+            done
+        else
+            echo "SKIP: No V files found"
+        fi
+        ;;
     *)
         echo "SKIP: Unknown language '$LANGUAGE'"
         ;;

@@ -88,6 +88,56 @@ jobs:
             scala:
               - '**/*.scala'
               - '**/build.sbt'
+            assembly:
+              - '**/*.asm'
+              - '**/*.s'
+              - '**/*.S'
+            brainfuck:
+              - '**/*.bf'
+              - '**/*.b'
+            clojure:
+              - '**/*.clj'
+              - '**/*.cljs'
+              - '**/*.cljc'
+              - '**/deps.edn'
+              - '**/project.clj'
+            crystal:
+              - '**/*.cr'
+              - '**/shard.yml'
+            elixir:
+              - '**/*.ex'
+              - '**/*.exs'
+              - '**/mix.exs'
+            erlang:
+              - '**/*.erl'
+              - '**/*.hrl'
+              - '**/rebar.config'
+            julia:
+              - '**/*.jl'
+              - '**/Project.toml'
+            lua:
+              - '**/*.lua'
+              - '**/rockspec'
+            nim:
+              - '**/*.nim'
+              - '**/*.nims'
+              - '**/nim.cfg'
+            ocaml:
+              - '**/*.ml'
+              - '**/*.mli'
+              - '**/dune'
+              - '**/*.opam'
+            perl:
+              - '**/*.pl'
+              - '**/*.pm'
+              - '**/cpanfile'
+            r:
+              - '**/*.R'
+              - '**/*.r'
+              - '**/DESCRIPTION'
+            v:
+              - '**/*.v'
+              - '**/v.mod'
       - name: Build language matrix
         id: langs
         run: |
@@ -107,6 +157,19 @@ jobs:
           [ "${{ steps.filter.outputs.haskell }}" = "true" ] && LANGS+=("haskell")
           [ "${{ steps.filter.outputs.dart }}" = "true" ] && LANGS+=("dart")
           [ "${{ steps.filter.outputs.scala }}" = "true" ] && LANGS+=("scala")
+          [ "${{ steps.filter.outputs.assembly }}" = "true" ] && LANGS+=("assembly")
+          [ "${{ steps.filter.outputs.brainfuck }}" = "true" ] && LANGS+=("brainfuck")
+          [ "${{ steps.filter.outputs.clojure }}" = "true" ] && LANGS+=("clojure")
+          [ "${{ steps.filter.outputs.crystal }}" = "true" ] && LANGS+=("crystal")
+          [ "${{ steps.filter.outputs.elixir }}" = "true" ] && LANGS+=("elixir")
+          [ "${{ steps.filter.outputs.erlang }}" = "true" ] && LANGS+=("erlang")
+          [ "${{ steps.filter.outputs.julia }}" = "true" ] && LANGS+=("julia")
+          [ "${{ steps.filter.outputs.lua }}" = "true" ] && LANGS+=("lua")
+          [ "${{ steps.filter.outputs.nim }}" = "true" ] && LANGS+=("nim")
+          [ "${{ steps.filter.outputs.ocaml }}" = "true" ] && LANGS+=("ocaml")
+          [ "${{ steps.filter.outputs.perl }}" = "true" ] && LANGS+=("perl")
+          [ "${{ steps.filter.outputs.r }}" = "true" ] && LANGS+=("r")
+          [ "${{ steps.filter.outputs.v }}" = "true" ] && LANGS+=("v")
           LEN=${#LANGS[@]}
           if [ "$LEN" -eq 0 ]; then
             echo "languages=[]" >> $GITHUB_OUTPUT

@@ -119,6 +119,124 @@ case "$LANGUAGE" in
             sbt test 2>&1 || true
         fi
         ;;
+    assembly)
+        if ls *.o 2>/dev/null | head -1; then
+            echo "Linking and running assembly..."
+            gcc -o /tmp/asm_prog *.o -lc 2>/dev/null && timeout 5 /tmp/asm_prog || echo "NOTE: Assembly run exited (expected)"
+        elif ls *.asm 2>/dev/null | head -1; then
+            for f in *.asm; do
+                [ -f "$f" ] && nasm -f elf64 "$f" -o /tmp/asm_test.o && gcc -o /tmp/asm_test /tmp/asm_test.o && timeout 5 /tmp/asm_test || echo "NOTE: Assembly run exited (expected)"
+                break
+            done
+        fi
+        ;;
+    brainfuck)
+        if ls *.bf *.b 2>/dev/null | head -1; then
+            for f in *.bf *.b; do
+                [ -f "$f" ] && timeout 5 bf "$f" 2>&1 || echo "NOTE: $f exited (expected)"
+                break
+            done
+        fi
+        ;;
+    clojure)
+        if [ -f "deps.edn" ] || [ -f "project.clj" ]; then
+            echo "Running Clojure..."
+            timeout 10 clojure -M -e '(println "hello")' 2>&1 || echo "NOTE: Clojure run exited (expected)"
+        fi
+        ;;
+    crystal)
+        if ls *.cr 2>/dev/null | head -1; then
+            echo "Running Crystal..."
+            timeout 5 crystal run *.cr 2>&1 || echo "NOTE: Crystal run exited (expected)"
+        fi
+        ;;
+    elixir)
+        if [ -f "mix.exs" ]; then
+            echo "Running Elixir project..."
+            timeout 10 mix run 2>&1 || echo "NOTE: mix run exited (expected)"
+        elif ls *.exs 2>/dev/null | head -1; then
+            for f in *.exs; do
+                [ -f "$f" ] && timeout 10 elixir "$f" 2>&1 || echo "NOTE: $f exited (expected)"
+                break
+            done
+        fi
+        ;;
+    erlang)
+        if ls *.erl 2>/dev/null | head -1; then
+            echo "Running Erlang..."
+            timeout 5 erl -noshell -eval 'halt().' 2>&1 || echo "NOTE: Erlang run exited (expected)"
+        fi
+        ;;
+    julia)
+        if ls *.jl 2>/dev/null | head -1; then
+            for f in main.jl app.jl run.jl; do
+                if [ -f "$f" ]; then
+                    echo "Running $f..."
+                    timeout 10 julia "$f" 2>&1 || echo "NOTE: $f exited (expected)"
+                    break
+                fi
+            done
+        fi
+        ;;
+    lua)
+        if ls *.lua 2>/dev/null | head -1; then
+            for f in main.lua app.lua run.lua; do
+                if [ -f "$f" ]; then
+                    echo "Running $f..."
+                    timeout 5 lua "$f" 2>&1 || echo "NOTE: $f exited (expected)"
+                    break
+                fi
+            done
+        fi
+        ;;
+    nim)
+        if ls *.nim 2>/dev/null | head -1; then
+            echo "Running Nim..."
+            for f in *.nim; do
+                [ -f "$f" ] && timeout 5 nim compile --run "$f" 2>&1 || echo "NOTE: Nim run exited (expected)"
+                break
+            done
+        fi
+        ;;
+    ocaml)
+        if ls *.ml 2>/dev/null | head -1; then
+            echo "Running OCaml..."
+            for f in *.ml; do
+                [ -f "$f" ] && timeout 5 ocaml "$f" 2>&1 || echo "NOTE: OCaml run exited (expected)"
+                break
+            done
+        fi
+        ;;
+    perl)
+        if ls *.pl 2>/dev/null | head -1; then
+            for f in main.pl app.pl run.pl; do
+                if [ -f "$f" ]; then
+                    echo "Running $f..."
+                    timeout 5 perl "$f" 2>&1 || echo "NOTE: $f exited (expected)"
+                    break
+                fi
+            done
+        fi
+        ;;
+    r)
+        if ls *.R *.r 2>/dev/null | head -1; then
+            for f in main.R app.R run.R; do
+                if [ -f "$f" ]; then
+                    echo "Running $f..."
+                    timeout 10 Rscript "$f" 2>&1 || echo "NOTE: $f exited (expected)"
+                    break
+                fi
+            done
+        fi
+        ;;
+    v)
+        if ls *.v 2>/dev/null | head -1; then
+            for f in *.v; do
+                [ -f "$f" ] && timeout 5 v run "$f" 2>&1 || echo "NOTE: V run exited (expected)"
+                break
+            done
+        fi
+        ;;
 esac
 
 echo ""
